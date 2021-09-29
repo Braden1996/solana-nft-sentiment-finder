@@ -1,0 +1,36 @@
+name: Execute Script
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  execute:
+    name: Execute
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install deps and build (with cache)
+        uses: bahmutov/npm-install@v1
+
+      - name: Build
+        run: yarn build
+
+      - name: Execute
+        run: yarn execute
+        env:
+          TWITTER_BEARER_TOKEN: ${{ secrets.TWITTER_BEARER_TOKEN }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sortedTwitterFollowers-${{ github.sha }}
+          path: out/*
